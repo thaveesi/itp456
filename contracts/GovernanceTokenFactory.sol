@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 import "./interfaces/IGovernanceTokenFactory.sol";
+import "./GovernanceToken.sol";
 
 contract GovernanceTokenFactory {
     event TokenCreated(address tokenAddress, address creator);
 
     address public tokengenerator;
+    address private owner;
     //address of tokegenerator - controlled by us
 
     modifier onlytokengenerator() {
@@ -14,7 +16,7 @@ contract GovernanceTokenFactory {
     }
 
     modifier onlyOwner() {
-        require(msg.sender);
+        require(msg.sender == owner, "permission: only Owner");
         _;
     }
 
@@ -38,16 +40,21 @@ contract GovernanceTokenFactory {
         );
 
         // Create a new governance token contract
-        IGovernanceToken newToken = new GovernanceToken(
+        GovernanceToken newToken = new GovernanceToken(
             name,
             symbol,
             totalSupply,
             msg.sender
         );
 
-        emit TokenCreated(address(newToken), msg.sender);
+        emit TokenCreated(address(newToken), msg.sender); //msg.sender is the gp
         return address(newToken);
+    }
 
+    function tokenDistribution(
+        address[] memory stakeholders,
+        uint256[] memory percentages
+    ) internal returns (uint256[]) {
         // Calculate and distribute token amounts based on percentage ownership
         uint256 totalPercentage = 0;
         for (uint256 i = 0; i < stakeholders.length; i++) {
