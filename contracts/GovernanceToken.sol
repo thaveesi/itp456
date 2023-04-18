@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GovernanceToken is ERC20 {
     address public owner;
+    uint256 public proposalCount;
+    uint256 public voteTimeLimit;
 
     mapping(address => uint256) private balances;
     mapping(address => mapping(address => uint256)) public allowed;
@@ -19,8 +22,10 @@ contract GovernanceToken is ERC20 {
         mapping(address => bool) hasVoted;
     }
 
-    uint256 public proposalCount;
-    uint256 public voteTimeLimit;
+    modifier onlyOwner() {
+        require(msg.sender == owner, "permission: only Owner");
+        _;
+    }
 
     event GovernanceVote(
         address indexed voter,
@@ -42,8 +47,26 @@ contract GovernanceToken is ERC20 {
         proposalCount = 0;
     }
 
+    function tokenDistribution(
+        address[] memory stakeholders,
+        uint256[] memory percentages,
+        uint256 totalSupply
+    ) external onlyOwner {
+        // Calculate and distribute token amounts based on percentage ownership
+        uint256 totalPercentage = 0;
+        for (uint256 i = 0; i < stakeholders.length; i++) {
+            totalPercentage += percentages[i];
+            uint256 amount = (totalSupply * percentages[i]) / 100;
+            transferFrom(owner, stakeholders[i], amount);
+        }
+        require(
+            totalPercentage == 100,
+            "Percentage ownership must add up to 100"
+        );
+    }
+
     function createProposal(
-        string memory _description,
+        string memory _description, //use snapshot to store description instead
         uint256 _endTime
     ) public {
         proposalCount++;
@@ -54,9 +77,10 @@ contract GovernanceToken is ERC20 {
         newProposal.voteCountYes = 0;
         newProposal.voteCountNo = 0;
         newProposal.startTime = block.timestamp;
-        newProposal.endTime = _endTime;
+        newProposal.endTime = block.timestamp + _endTime;
 
         // The newProposal.hasVoted mapping is already initialized by default.
+        emit NewGovernanceProposal(newProposal.id, _description);
     }
 
     function vote(uint256 _proposalId, bool _voteFor) public returns (bool) {
