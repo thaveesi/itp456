@@ -14,9 +14,18 @@ contract GovernanceTokenFactory {
         _;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+
     function settokengenerator(
         address _tokengenerator
-    ) external returns (address) {
+    ) external onlyOwner returns (address) {
         tokengenerator = _tokengenerator;
         return tokengenerator;
     }
