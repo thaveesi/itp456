@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "hardhat run --network goerli deploy.js"
   },
   "repository": {
     "type": "git",
@@ -19,15 +20,22 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.5",
+    "@typechain/ethers-v5": "^10.2.0",
+    "@typechain/hardhat": "^6.1.5",
     "chai": "^4.3.7",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.7.2",
     "hardhat": "^2.13.1",
     "hardhat-ethers": "^1.0.1",
-    "hardhat-waffle": "^0.0.1-security"
+    "hardhat-waffle": "^0.0.1-security",
+    "typechain": "^8.1.1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.2"
+    "@openzeppelin/contracts": "^4.8.3",
+    "dotenv": "^16.0.3",
+    "ipfs-http-client": "^60.0.0",
+    "web3.storage": "^4.5.4"
   }
 }
